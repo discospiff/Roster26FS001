@@ -1,10 +1,86 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "RosterVideo";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<header class="mb-4">
+    <h1>RosterVideo</h1>
+    <p class="lead">Share your favorite keyboard shortcut with the roster.</p>
+</header>
+
+<section aria-labelledby="submission-heading" class="mb-5">
+    <h2 id="submission-heading">Add your shortcut</h2>
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Input.FirstName" class="form-label"></label>
+                <input asp-for="Input.FirstName" class="form-control" aria-describedby="Input_FirstName-error" aria-required="true" />
+                <span asp-validation-for="Input.FirstName" id="Input_FirstName-error" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.LastName" class="form-label"></label>
+                <input asp-for="Input.LastName" class="form-control" aria-describedby="Input_LastName-error" aria-required="true" />
+                <span asp-validation-for="Input.LastName" id="Input_LastName-error" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.Major" class="form-label"></label>
+                <input asp-for="Input.Major" class="form-control" aria-describedby="Input_Major-error" aria-required="true" />
+                <span asp-validation-for="Input.Major" id="Input_Major-error" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.FavoriteKeyboardShortcut" class="form-label">Favorite keyboard shortcut</label>
+                <input asp-for="Input.FavoriteKeyboardShortcut" class="form-control" aria-describedby="Input_FavoriteKeyboardShortcut-error" aria-required="true" />
+                <span asp-validation-for="Input.FavoriteKeyboardShortcut" id="Input_FavoriteKeyboardShortcut-error" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Input.ShortcutUsage" class="form-label">Where can you use that shortcut?</label>
+                <textarea asp-for="Input.ShortcutUsage" class="form-control" rows="3" aria-describedby="Input_ShortcutUsage-error" aria-required="true"></textarea>
+                <span asp-validation-for="Input.ShortcutUsage" id="Input_ShortcutUsage-error" class="text-danger"></span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Add to roster</button>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<section aria-labelledby="roster-heading">
+    <h2 id="roster-heading">Current roster</h2>
+    @if (Model.Entries.Count == 0)
+    {
+        <p role="status">No entries have been submitted yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table">
+                <caption class="visually-hidden">Roster entries and favorite keyboard shortcuts</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Major</th>
+                        <th scope="col">Favorite shortcut</th>
+                        <th scope="col">Where it can be used</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var entry in Model.Entries)
+                {
+                    <tr>
+                        <td>@entry.FirstName @entry.LastName</td>
+                        <td>@entry.Major</td>
+                        <td>@entry.FavoriteKeyboardShortcut</td>
+                        <td>@entry.ShortcutUsage</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
