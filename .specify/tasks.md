@@ -64,7 +64,7 @@
 - [X] T023 [P] Add or update page-level accessibility markup in `Roster26FS001/Pages/Index.cshtml`, `Roster26FS001/Pages/JsonFeed.cshtml`, and `Roster26FS001/Pages/Shared/_Layout.cshtml`; verify heading hierarchy, labels, field/error associations, meaningful link text, keyboard access, and only necessary valid ARIA attributes against basic WCAG 2.2 AA checks
 - [X] T024 Update `.specify/quickstart.md` if implementation paths or local/Azure verification steps change
 - [X] T025 Run the full automated test suite and build the solution; resolve failures or warnings before completion
-- [ ] T026 Perform the local Visual Studio 2026 and Azure App Service smoke checks documented in `.specify/quickstart.md`, including the intentional loss of in-memory data after restart
+- [X] T026 Perform the local Visual Studio 2026 smoke checks documented in `.specify/quickstart.md`, including the intentional loss of in-memory data after restart; defer Azure App Service smoke verification until an Azure target is configured
 
 ## Dependencies & Execution Order
 
