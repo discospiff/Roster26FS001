@@ -55,10 +55,12 @@ public sealed class RosterSubmission
 {
     [Required(ErrorMessage = "First name is required.")]
     [StringLength(100, ErrorMessage = "First name must be 100 characters or fewer.")]
+    [Display(Name = "First Name")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Last name is required.")]
     [StringLength(100, ErrorMessage = "Last name must be 100 characters or fewer.")]
+    [Display(Name = "Last Name")]
     public string LastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Major is required.")]
