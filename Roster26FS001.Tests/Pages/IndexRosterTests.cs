@@ -15,7 +15,7 @@ public sealed class IndexRosterTests
 
         model.OnGet();
 
-        Assert.AreEqual(0, model.Entries.Count);
+        Assert.IsEmpty(model.Entries);
     }
 
     [TestMethod]

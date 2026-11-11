@@ -30,7 +30,7 @@ public sealed class InMemoryRosterStoreTests
         var copied = snapshot.ToList();
         copied.Clear();
 
-        Assert.AreEqual(1, store.GetSnapshot().Count);
+        Assert.HasCount(1, store.GetSnapshot());
     }
 
     [TestMethod]
@@ -52,7 +52,7 @@ public sealed class InMemoryRosterStoreTests
 
         Parallel.For(0, 100, index => store.Add(CreateEntry($"User{index}")));
 
-        Assert.AreEqual(100, store.GetSnapshot().Count);
+        Assert.HasCount(100, store.GetSnapshot());
     }
 
     private static RosterEntry CreateEntry(string firstName) => RosterEntry.Create(

@@ -3,6 +3,10 @@
 
 name: Build and deploy ASP.Net Core app to Azure Web App - Roster26FS001
 
+concurrency:
+  group: roster26fs001-production
+  cancel-in-progress: true
+
 on:
   push:
     branches:
@@ -23,11 +27,44 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets', 'global.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore Roster26FS001.slnx
+
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build Roster26FS001.slnx --configuration Release --no-restore --warnaserror
+
+      - name: Run tests
+        run: >-
+          dotnet test Roster26FS001.slnx
+          --configuration Release
+          --no-build
+          --no-restore
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
+          if-no-files-found: ignore
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: >-
+          dotnet publish Roster26FS001/Roster26FS001.csproj
+          --configuration Release
+          --no-build
+          --no-restore
+          --output "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

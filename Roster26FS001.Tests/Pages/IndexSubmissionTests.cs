@@ -54,8 +54,8 @@ public sealed class IndexSubmissionTests
         var result = model.OnPost();
 
         Assert.IsInstanceOfType<PageResult>(result);
-        Assert.IsTrue(model.ModelState.ErrorCount > 0);
-        Assert.AreEqual(0, store.GetSnapshot().Count);
+        Assert.IsGreaterThan(0, model.ModelState.ErrorCount);
+        Assert.IsEmpty(store.GetSnapshot());
         Assert.AreEqual("Ada", model.Input.FirstName);
     }
 
