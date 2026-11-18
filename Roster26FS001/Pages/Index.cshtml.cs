@@ -23,7 +23,7 @@ public class IndexModel : PageModel
     public void OnGet()
     {
         string brand = "A roster of the most awesomest students ever!";
-        String inBrand = Request.Query["Brand"];
+        String? inBrand = Request.Query["Brand"];
         if (!string.IsNullOrWhiteSpace(inBrand))
         {
             brand = inBrand;
