@@ -9,6 +9,8 @@ public sealed record AzureInAppConnection(
     string UserId,
     string Password)
 {
+    public string SafeEndpoint => $"{Host}:{Port}";
+
     public string ToConnectionString() =>
         new DbConnectionStringBuilder
         {

@@ -84,4 +84,15 @@ public sealed class AzureInAppConnectionStringNormalizerTests
         StringAssert.Contains(exception.Message, "invalid port");
         Assert.DoesNotContain("secret", exception.Message);
     }
+
+    [TestMethod]
+    public void Normalize_ExposesOnlySafeEndpointMetadata()
+    {
+        var connection = new AzureInAppConnectionStringNormalizer().Normalize(
+            "Server=127.0.0.1;Port=53381;Database=roster;User ID=app-user;Password=secret-value");
+
+        Assert.AreEqual("127.0.0.1:53381", connection.SafeEndpoint);
+        Assert.DoesNotContain("app-user", connection.SafeEndpoint);
+        Assert.DoesNotContain("secret-value", connection.SafeEndpoint);
+    }
 }

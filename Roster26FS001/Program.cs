@@ -25,10 +25,11 @@ builder.Services.AddSingleton<IRosterStore>(serviceProvider =>
         .CreateLogger("RosterStoreSelection");
 
     logger.LogInformation(
-        "Roster storage selected. StorageMode={StorageMode} HostingEnvironment={HostingEnvironment} ConnectionConfigured={ConnectionConfigured}",
+        "Roster storage selected. StorageMode={StorageMode} HostingEnvironment={HostingEnvironment} ConnectionConfigured={ConnectionConfigured} PortOverrideConfigured={PortOverrideConfigured}",
         selectedMode,
         environment.EnvironmentName,
-        !string.IsNullOrWhiteSpace(connectionString));
+        !string.IsNullOrWhiteSpace(connectionString),
+        !string.IsNullOrWhiteSpace(portOverride));
 
     return selector.Create(
         environment,

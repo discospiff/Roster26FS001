@@ -8,6 +8,7 @@ public sealed class AzureMySqlRosterStore : IRosterStore
 {
     private readonly string connectionString;
     private readonly ILogger<AzureMySqlRosterStore> logger;
+    private readonly AzureInAppConnection connectionDetails;
     private readonly SemaphoreSlim schemaGate = new(1, 1);
     private bool schemaInitialized;
 
@@ -15,6 +16,7 @@ public sealed class AzureMySqlRosterStore : IRosterStore
         AzureInAppConnection connection,
         ILogger<AzureMySqlRosterStore> logger)
     {
+        connectionDetails = connection;
         connectionString = connection.ToConnectionString();
         this.logger = logger;
     }
@@ -141,6 +143,8 @@ public sealed class AzureMySqlRosterStore : IRosterStore
                 exception.GetType().Name,
                 mySqlException.Number,
                 mySqlException.SqlState,
+                connectionDetails.SafeEndpoint,
+                !string.IsNullOrWhiteSpace(connectionDetails.Database),
                 mySqlException.Message);
             return;
         }
