@@ -14,7 +14,7 @@ public sealed class RosterStoreSelector
     {
         ArgumentNullException.ThrowIfNull(environment);
 
-        return IsAzure(environment) && !string.IsNullOrWhiteSpace(connectionString)
+        return IsAzure(environment)
             ? StorageMode.AzureMySqlInApp
             : StorageMode.InMemory;
     }
@@ -37,6 +37,6 @@ public sealed class RosterStoreSelector
 
     private static bool IsAzure(IHostEnvironment environment) =>
         string.Equals(environment.EnvironmentName, "Azure", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"), environment.ApplicationName, StringComparison.OrdinalIgnoreCase)
+        || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"))
         || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 }

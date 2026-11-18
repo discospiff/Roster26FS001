@@ -10,9 +10,24 @@ builder.Services.AddSingleton<RosterStoreSelector>();
 builder.Services.AddSingleton<IRosterStore>(serviceProvider =>
 {
     var selector = serviceProvider.GetRequiredService<RosterStoreSelector>();
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
+    var connectionString = configuration.GetConnectionString("localdb")
+        ?? configuration["MYSQLCONNSTR_localdb"]
+        ?? Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
+    var selectedMode = selector.Select(environment, connectionString);
+    var logger = serviceProvider.GetRequiredService<ILoggerFactory>()
+        .CreateLogger("RosterStoreSelection");
+
+    logger.LogInformation(
+        "Roster storage selected. StorageMode={StorageMode} HostingEnvironment={HostingEnvironment} ConnectionConfigured={ConnectionConfigured}",
+        selectedMode,
+        environment.EnvironmentName,
+        !string.IsNullOrWhiteSpace(connectionString));
+
     return selector.Create(
-        builder.Environment,
-        builder.Configuration["MYSQLCONNSTR_localdb"],
+        environment,
+        connectionString,
         serviceProvider.GetRequiredService<InMemoryRosterStore>(),
         serviceProvider.GetRequiredService<AzureInAppConnectionStringNormalizer>(),
         serviceProvider.GetRequiredService<ILogger<AzureMySqlRosterStore>>());
