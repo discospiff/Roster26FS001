@@ -31,4 +31,26 @@ public sealed class AzureInAppConnectionStringNormalizerTests
 
         Assert.DoesNotContain("secret-value", exception.Message);
     }
+
+    [TestMethod]
+    public void Normalize_SupportsAzureMySqlAliases()
+    {
+        var connection = new AzureInAppConnectionStringNormalizer().Normalize(
+            "Data Source=azure-host;Port=43817;Initial Catalog=roster;Uid=app;Pwd=secret");
+
+        Assert.AreEqual("azure-host", connection.Host);
+        Assert.AreEqual((uint)43817, connection.Port);
+        Assert.AreEqual("roster", connection.Database);
+        Assert.AreEqual("app", connection.UserId);
+    }
+
+    [TestMethod]
+    public void Normalize_IdentifiesMissingNonSecretField()
+    {
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(() => new AzureInAppConnectionStringNormalizer().Normalize(
+            "Data Source=azure-host;Port=43817;Uid=app;Pwd=secret"));
+
+        StringAssert.Contains(exception.Message, "database");
+        Assert.DoesNotContain("secret", exception.Message);
+    }
 }

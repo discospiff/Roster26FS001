@@ -30,11 +30,11 @@ public sealed class AzureInAppConnectionStringNormalizer
         }
 
         var source = new DbConnectionStringBuilder { ConnectionString = value };
-        var host = GetRequired(source, "Server", "Host", "Data Source");
-        var portText = GetRequired(source, "Port");
-        var database = GetRequired(source, "Database", "Initial Catalog");
-        var userId = GetRequired(source, "User ID", "Uid", "User");
-        var password = GetRequired(source, "Password", "Pwd");
+        var host = GetRequired("host", source, "Server", "Host", "Data Source", "Address", "Addr", "Network Address", "HOST");
+        var portText = GetRequired("port", source, "Port", "PORT");
+        var database = GetRequired("database", source, "Database", "Initial Catalog", "Catalog", "Db", "DBNAME");
+        var userId = GetRequired("user", source, "User ID", "Uid", "User", "Username", "UserName", "UID");
+        var password = GetRequired("password", source, "Password", "Pwd", "Pass", "PASSWORD");
 
         if (!uint.TryParse(portText, out var port) || port is 0 or > 65535)
         {
@@ -44,7 +44,7 @@ public sealed class AzureInAppConnectionStringNormalizer
         return new AzureInAppConnection(host, port, database, userId, password);
     }
 
-    private static string GetRequired(DbConnectionStringBuilder source, params string[] keys)
+    private static string GetRequired(string fieldName, DbConnectionStringBuilder source, params string[] keys)
     {
         foreach (var key in keys)
         {
@@ -54,6 +54,6 @@ public sealed class AzureInAppConnectionStringNormalizer
             }
         }
 
-        throw new InvalidOperationException("Azure MySQL configuration is incomplete.");
+        throw new InvalidOperationException($"Azure MySQL configuration is missing the required {fieldName} value.");
     }
 }
