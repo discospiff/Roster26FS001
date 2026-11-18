@@ -15,7 +15,7 @@ public class IndexModel : PageModel
         this.rosterStore = rosterStore;
     }
 
-    public void OnGet() => OnGetAsync(CancellationToken.None).GetAwaiter().GetResult();
+    // public void OnGet() => OnGetAsync(CancellationToken.None).GetAwaiter().GetResult();
 
     [BindProperty]
     public RosterSubmission Input { get; set; } = new();
@@ -29,7 +29,7 @@ public class IndexModel : PageModel
         await LoadEntriesAsync(cancellationToken);
     }
 
-    public IActionResult OnPost() => OnPostAsync(CancellationToken.None).GetAwaiter().GetResult();
+   // public IActionResult OnPost() => OnPostAsync(CancellationToken.None).GetAwaiter().GetResult();
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
