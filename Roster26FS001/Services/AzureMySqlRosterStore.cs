@@ -136,7 +136,7 @@ public sealed class AzureMySqlRosterStore : IRosterStore
         if (exception is MySqlException mySqlException)
         {
             logger.LogError(
-                "Roster persistence operation failed. Operation={Operation} StorageMode={StorageMode} FailureCategory={FailureCategory} ExceptionType={ExceptionType} MySqlNumber={MySqlNumber} SqlState={SqlState} ServerMessage={ServerMessage}",
+                "Roster persistence operation failed. Operation={Operation} StorageMode={StorageMode} FailureCategory={FailureCategory} ExceptionType={ExceptionType} MySqlNumber={MySqlNumber} SqlState={SqlState} Endpoint={Endpoint} DatabaseConfigured={DatabaseConfigured} ServerMessage={ServerMessage}",
                 operation,
                 StorageMode.AzureMySqlInApp,
                 failureCategory,
