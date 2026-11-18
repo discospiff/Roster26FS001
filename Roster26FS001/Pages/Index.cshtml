@@ -52,7 +52,11 @@
 
 <section aria-labelledby="roster-heading">
     <h2 id="roster-heading">Current roster</h2>
-    @if (Model.Entries.Count == 0)
+    @if (Model.PersistenceUnavailable)
+    {
+        <p role="alert">Roster persistence is unavailable. Please try again later.</p>
+    }
+    else if (Model.Entries.Count == 0)
     {
         <p role="status">No entries have been submitted yet.</p>
     }
