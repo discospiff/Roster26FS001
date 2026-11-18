@@ -10,7 +10,7 @@ namespace Roster26FS001.Tests.Pages;
 public sealed class IndexSubmissionTests
 {
     [TestMethod]
-    public void OnPost_WithValidInput_AddsEntryAndClearsForm()
+    public async Task OnPost_WithValidInput_AddsEntryAndClearsForm()
     {
         var store = new InMemoryRosterStore();
         var model = new IndexModel(store)
@@ -25,7 +25,7 @@ public sealed class IndexSubmissionTests
             }
         };
 
-        var result = model.OnPost();
+        var result = await model.OnPostAsync(CancellationToken.None);
 
         Assert.IsInstanceOfType<PageResult>(result);
         var entry = store.GetSnapshot()[0];
@@ -35,7 +35,7 @@ public sealed class IndexSubmissionTests
     }
 
     [TestMethod]
-    public void OnPost_WithInvalidModelState_DoesNotAddEntryAndKeepsInput()
+    public async Task OnPost_WithInvalidModelState_DoesNotAddEntryAndKeepsInput()
     {
         var store = new InMemoryRosterStore();
         var model = new IndexModel(store)
@@ -51,7 +51,7 @@ public sealed class IndexSubmissionTests
         };
         model.ModelState.AddModelError("Input.FirstName", "First name is required.");
 
-        var result = model.OnPost();
+        var result = await model.OnPostAsync(CancellationToken.None);
 
         Assert.IsInstanceOfType<PageResult>(result);
         Assert.IsGreaterThan(0, model.ModelState.ErrorCount);

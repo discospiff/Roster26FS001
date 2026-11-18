@@ -9,17 +9,17 @@ namespace Roster26FS001.Tests.Pages;
 public sealed class IndexRosterTests
 {
     [TestMethod]
-    public void OnGet_WithNoEntries_ReturnsEmptySnapshot()
+    public async Task OnGet_WithNoEntries_ReturnsEmptySnapshot()
     {
         var model = new IndexModel(new InMemoryRosterStore());
 
-        model.OnGet();
+        await model.OnGetAsync(CancellationToken.None);
 
         Assert.IsEmpty(model.Entries);
     }
 
     [TestMethod]
-    public void OnGet_ReturnsAllEntriesInSubmissionOrder()
+    public async Task OnGet_ReturnsAllEntriesInSubmissionOrder()
     {
         var store = new InMemoryRosterStore();
         var first = CreateEntry("Ada");
@@ -28,13 +28,13 @@ public sealed class IndexRosterTests
         store.Add(second);
 
         var model = new IndexModel(store);
-        model.OnGet();
+        await model.OnGetAsync(CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { first, second }, model.Entries.ToArray());
     }
 
     [TestMethod]
-    public void OnPost_WithInvalidInput_LoadsExistingRoster()
+    public async Task OnPost_WithInvalidInput_LoadsExistingRoster()
     {
         var store = new InMemoryRosterStore();
         var existing = CreateEntry("Ada");
@@ -42,7 +42,7 @@ public sealed class IndexRosterTests
         var model = new IndexModel(store);
         model.ModelState.AddModelError("Input.FirstName", "First name is required.");
 
-        var result = model.OnPost();
+        var result = await model.OnPostAsync(CancellationToken.None);
 
         Assert.IsInstanceOfType<PageResult>(result);
         CollectionAssert.AreEqual(new[] { existing }, model.Entries.ToArray());

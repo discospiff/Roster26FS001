@@ -12,25 +12,25 @@ public sealed class JsonFeedPageTests
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     [TestMethod]
-    public void OnGet_WithEmptyStore_ReturnsEmptyJsonCollection()
+    public async Task OnGet_WithEmptyStore_ReturnsEmptyJsonCollection()
     {
         var model = new JsonFeedModel(new InMemoryRosterStore());
 
-        var result = model.OnGet();
+        var result = await model.OnGetAsync(CancellationToken.None);
 
         var json = JsonSerializer.Serialize(result.Value, JsonOptions);
         Assert.AreEqual("[]", json);
     }
 
     [TestMethod]
-    public void OnGet_ReturnsAllFieldsInSubmissionOrderWithCamelCaseNames()
+    public async Task OnGet_ReturnsAllFieldsInSubmissionOrderWithCamelCaseNames()
     {
         var store = new InMemoryRosterStore();
         store.Add(RosterEntry.Create("Ada", "Lovelace", "Computer Science", "Ctrl+K", "Command palette"));
         store.Add(RosterEntry.Create("Grace", "Hopper", "Mathematics", "Ctrl+Shift+P", "Command search"));
         var model = new JsonFeedModel(store);
 
-        var result = model.OnGet();
+        var result = await model.OnGetAsync(CancellationToken.None);
 
         var json = JsonSerializer.Serialize(result.Value, JsonOptions);
         using var document = JsonDocument.Parse(json);
@@ -43,11 +43,11 @@ public sealed class JsonFeedPageTests
     }
 
     [TestMethod]
-    public void OnGet_ReturnsJsonResult()
+    public async Task OnGet_ReturnsJsonResult()
     {
         var model = new JsonFeedModel(new InMemoryRosterStore());
 
-        var result = model.OnGet();
+        var result = await model.OnGetAsync(CancellationToken.None);
 
         Assert.IsInstanceOfType<JsonResult>(result);
     }

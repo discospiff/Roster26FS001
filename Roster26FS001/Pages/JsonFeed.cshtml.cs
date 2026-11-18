@@ -20,5 +20,4 @@ public sealed class JsonFeedModel : PageModel
         return new JsonResult(await rosterStore.GetAllAsync(cancellationToken), JsonOptions);
     }
 
-    public JsonResult OnGet() => OnGetAsync(CancellationToken.None).GetAwaiter().GetResult();
 }
