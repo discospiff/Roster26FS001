@@ -119,7 +119,7 @@ public sealed class AzureMySqlRosterStore : IRosterStore
             }
             catch (Exception exception) when (exception is MySqlException or IOException or TimeoutException)
             {
-                logger.LogError("Roster persistence operation failed. Operation={Operation} StorageMode={StorageMode} FailureCategory={FailureCategory} ExceptionType={ExceptionType}", "schema-initialization", StorageMode.AzureMySqlInApp, "configuration", exception.GetType().Name);
+                LogPersistenceFailure("schema-initialization", "database", exception);
                 throw new InvalidOperationException("Roster persistence is unavailable.", exception);
             }
         }
@@ -127,5 +127,29 @@ public sealed class AzureMySqlRosterStore : IRosterStore
         {
             schemaGate.Release();
         }
+    }
+
+    private void LogPersistenceFailure(string operation, string failureCategory, Exception exception)
+    {
+        if (exception is MySqlException mySqlException)
+        {
+            logger.LogError(
+                "Roster persistence operation failed. Operation={Operation} StorageMode={StorageMode} FailureCategory={FailureCategory} ExceptionType={ExceptionType} MySqlNumber={MySqlNumber} SqlState={SqlState} ServerMessage={ServerMessage}",
+                operation,
+                StorageMode.AzureMySqlInApp,
+                failureCategory,
+                exception.GetType().Name,
+                mySqlException.Number,
+                mySqlException.SqlState,
+                mySqlException.Message);
+            return;
+        }
+
+        logger.LogError(
+            "Roster persistence operation failed. Operation={Operation} StorageMode={StorageMode} FailureCategory={FailureCategory} ExceptionType={ExceptionType}",
+            operation,
+            StorageMode.AzureMySqlInApp,
+            failureCategory,
+            exception.GetType().Name);
     }
 }
