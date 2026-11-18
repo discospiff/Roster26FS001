@@ -6,15 +6,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<InMemoryRosterStore>();
 builder.Services.AddSingleton<AzureInAppConnectionStringNormalizer>();
+builder.Services.AddSingleton<AzureMySqlConnectionSource>();
 builder.Services.AddSingleton<RosterStoreSelector>();
 builder.Services.AddSingleton<IRosterStore>(serviceProvider =>
 {
     var selector = serviceProvider.GetRequiredService<RosterStoreSelector>();
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
-    var connectionString = configuration.GetConnectionString("localdb")
-        ?? configuration["MYSQLCONNSTR_localdb"]
-        ?? Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
+    var connectionString = serviceProvider
+        .GetRequiredService<AzureMySqlConnectionSource>()
+        .Resolve(configuration);
     var portOverride = configuration["MYSQL_PORT"]
         ?? configuration["WEBSITE_MYSQL_PORT"]
         ?? Environment.GetEnvironmentVariable("MYSQL_PORT")
