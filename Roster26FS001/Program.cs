@@ -15,6 +15,10 @@ builder.Services.AddSingleton<IRosterStore>(serviceProvider =>
     var connectionString = configuration.GetConnectionString("localdb")
         ?? configuration["MYSQLCONNSTR_localdb"]
         ?? Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
+    var portOverride = configuration["MYSQL_PORT"]
+        ?? configuration["WEBSITE_MYSQL_PORT"]
+        ?? Environment.GetEnvironmentVariable("MYSQL_PORT")
+        ?? Environment.GetEnvironmentVariable("WEBSITE_MYSQL_PORT");
     var selectedMode = selector.Select(environment, connectionString);
     var logger = serviceProvider.GetRequiredService<ILoggerFactory>()
         .CreateLogger("RosterStoreSelection");
@@ -28,6 +32,7 @@ builder.Services.AddSingleton<IRosterStore>(serviceProvider =>
     return selector.Create(
         environment,
         connectionString,
+        portOverride,
         serviceProvider.GetRequiredService<InMemoryRosterStore>(),
         serviceProvider.GetRequiredService<AzureInAppConnectionStringNormalizer>(),
         serviceProvider.GetRequiredService<ILogger<AzureMySqlRosterStore>>());

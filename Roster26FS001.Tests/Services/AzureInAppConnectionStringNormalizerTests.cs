@@ -53,4 +53,35 @@ public sealed class AzureInAppConnectionStringNormalizerTests
         StringAssert.Contains(exception.Message, "database");
         Assert.DoesNotContain("secret", exception.Message);
     }
+
+    [TestMethod]
+    public void Normalize_UsesExplicitPortOverrideWhenConnectionStringOmitsPort()
+    {
+        var connection = new AzureInAppConnectionStringNormalizer().Normalize(
+            "Server=azure-host;Database=roster;User ID=app;Password=secret",
+            "53381");
+
+        Assert.AreEqual((uint)53381, connection.Port);
+    }
+
+    [TestMethod]
+    public void Normalize_ConnectionStringPortTakesPrecedenceOverOverride()
+    {
+        var connection = new AzureInAppConnectionStringNormalizer().Normalize(
+            "Server=azure-host;Port=43817;Database=roster;User ID=app;Password=secret",
+            "53381");
+
+        Assert.AreEqual((uint)43817, connection.Port);
+    }
+
+    [TestMethod]
+    public void Normalize_RejectsInvalidPortOverride()
+    {
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(() => new AzureInAppConnectionStringNormalizer().Normalize(
+            "Server=azure-host;Database=roster;User ID=app;Password=secret",
+            "not-a-port"));
+
+        StringAssert.Contains(exception.Message, "invalid port");
+        Assert.DoesNotContain("secret", exception.Message);
+    }
 }

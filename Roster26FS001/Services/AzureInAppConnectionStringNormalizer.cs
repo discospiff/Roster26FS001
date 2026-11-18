@@ -22,7 +22,7 @@ public sealed record AzureInAppConnection(
 
 public sealed class AzureInAppConnectionStringNormalizer
 {
-    public AzureInAppConnection Normalize(string? value)
+    public AzureInAppConnection Normalize(string? value, string? portOverride = null)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -31,7 +31,11 @@ public sealed class AzureInAppConnectionStringNormalizer
 
         var source = new DbConnectionStringBuilder { ConnectionString = value };
         var host = GetRequired("host", source, "Server", "Host", "Data Source", "Address", "Addr", "Network Address", "HOST");
-        var portText = GetRequired("port", source, "Port", "PORT");
+        var portText = GetOptional(source, "Port", "PORT") ?? portOverride;
+        if (string.IsNullOrWhiteSpace(portText))
+        {
+            throw new InvalidOperationException("Azure MySQL configuration is missing the required port value. Set Port in the connection string or configure MYSQL_PORT.");
+        }
         var database = GetRequired("database", source, "Database", "Initial Catalog", "Catalog", "Db", "DBNAME");
         var userId = GetRequired("user", source, "User ID", "Uid", "User", "Username", "UserName", "UID");
         var password = GetRequired("password", source, "Password", "Pwd", "Pass", "PASSWORD");
@@ -55,5 +59,18 @@ public sealed class AzureInAppConnectionStringNormalizer
         }
 
         throw new InvalidOperationException($"Azure MySQL configuration is missing the required {fieldName} value.");
+    }
+
+    private static string? GetOptional(DbConnectionStringBuilder source, params string[] keys)
+    {
+        foreach (var key in keys)
+        {
+            if (source.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value?.ToString()))
+            {
+                return value.ToString();
+            }
+        }
+
+        return null;
     }
 }
