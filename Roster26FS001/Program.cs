@@ -16,25 +16,19 @@ builder.Services.AddSingleton<IRosterStore>(serviceProvider =>
     var connectionString = serviceProvider
         .GetRequiredService<AzureMySqlConnectionSource>()
         .Resolve(configuration);
-    var portOverride = configuration["MYSQL_PORT"]
-        ?? configuration["WEBSITE_MYSQL_PORT"]
-        ?? Environment.GetEnvironmentVariable("MYSQL_PORT")
-        ?? Environment.GetEnvironmentVariable("WEBSITE_MYSQL_PORT");
     var selectedMode = selector.Select(environment, connectionString);
     var logger = serviceProvider.GetRequiredService<ILoggerFactory>()
         .CreateLogger("RosterStoreSelection");
 
     logger.LogInformation(
-        "Roster storage selected. StorageMode={StorageMode} HostingEnvironment={HostingEnvironment} ConnectionConfigured={ConnectionConfigured} PortOverrideConfigured={PortOverrideConfigured}",
+        "Roster storage selected. StorageMode={StorageMode} HostingEnvironment={HostingEnvironment} ConnectionConfigured={ConnectionConfigured}",
         selectedMode,
         environment.EnvironmentName,
-        !string.IsNullOrWhiteSpace(connectionString),
-        !string.IsNullOrWhiteSpace(portOverride));
+        !string.IsNullOrWhiteSpace(connectionString));
 
     return selector.Create(
         environment,
         connectionString,
-        portOverride,
         serviceProvider.GetRequiredService<InMemoryRosterStore>(),
         serviceProvider.GetRequiredService<AzureInAppConnectionStringNormalizer>(),
         serviceProvider.GetRequiredService<ILogger<AzureMySqlRosterStore>>());

@@ -22,7 +22,6 @@ public sealed class RosterStoreSelector
     public IRosterStore Create(
         IHostEnvironment environment,
         string? connectionString,
-        string? portOverride,
         InMemoryRosterStore inMemoryStore,
         AzureInAppConnectionStringNormalizer normalizer,
         ILogger<AzureMySqlRosterStore> logger)
@@ -32,7 +31,7 @@ public sealed class RosterStoreSelector
             return inMemoryStore;
         }
 
-        var connection = normalizer.Normalize(connectionString, portOverride);
+        var connection = normalizer.Normalize(connectionString);
         return new AzureMySqlRosterStore(connection, logger);
     }
 

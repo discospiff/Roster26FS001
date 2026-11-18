@@ -24,7 +24,7 @@ public sealed record AzureInAppConnection(
 
 public sealed class AzureInAppConnectionStringNormalizer
 {
-    public AzureInAppConnection Normalize(string? value, string? portOverride = null)
+    public AzureInAppConnection Normalize(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -32,11 +32,19 @@ public sealed class AzureInAppConnectionStringNormalizer
         }
 
         var source = new DbConnectionStringBuilder { ConnectionString = value };
-        var host = GetRequired("host", source, "Server", "Host", "Data Source", "Address", "Addr", "Network Address", "HOST");
-        var portText = GetOptional(source, "Port", "PORT") ?? portOverride;
+        var hostValue = GetRequired("host", source, "Server", "Host", "Data Source", "Address", "Addr", "Network Address", "HOST");
+        var host = hostValue;
+        var portText = GetOptional(source, "Port", "PORT");
+
+        if (string.IsNullOrWhiteSpace(portText) && TrySplitHostAndPort(hostValue, out var hostWithoutPort, out var portFromHost))
+        {
+            host = hostWithoutPort;
+            portText = portFromHost;
+        }
+
         if (string.IsNullOrWhiteSpace(portText))
         {
-            throw new InvalidOperationException("Azure MySQL configuration is missing the required port value. Set Port in the connection string or configure MYSQL_PORT.");
+            throw new InvalidOperationException("Azure MySQL configuration is missing the required port value.");
         }
         var database = GetRequired("database", source, "Database", "Initial Catalog", "Catalog", "Db", "DBNAME");
         var userId = GetRequired("user", source, "User ID", "Uid", "User", "Username", "UserName", "UID");
@@ -74,5 +82,27 @@ public sealed class AzureInAppConnectionStringNormalizer
         }
 
         return null;
+    }
+
+    private static bool TrySplitHostAndPort(string value, out string host, out string port)
+    {
+        host = value;
+        port = string.Empty;
+
+        var separator = value.LastIndexOf(':');
+        if (separator <= 0 || separator == value.Length - 1 || value[..separator].Contains(':'))
+        {
+            return false;
+        }
+
+        var candidatePort = value[(separator + 1)..];
+        if (!uint.TryParse(candidatePort, out var parsedPort) || parsedPort is 0 or > 65535)
+        {
+            return false;
+        }
+
+        host = value[..separator];
+        port = parsedPort.ToString();
+        return true;
     }
 }
