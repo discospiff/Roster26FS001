@@ -15,39 +15,63 @@ public class IndexModel : PageModel
         this.rosterStore = rosterStore;
     }
 
+    public void OnGet() => OnGetAsync(CancellationToken.None).GetAwaiter().GetResult();
+
     [BindProperty]
     public RosterSubmission Input { get; set; } = new();
 
     public IReadOnlyList<RosterEntry> Entries { get; private set; } = [];
 
-    public void OnGet()
+    public bool PersistenceUnavailable { get; private set; }
+
+    public async Task OnGetAsync(CancellationToken cancellationToken)
     {
-        LoadEntries();
+        await LoadEntriesAsync(cancellationToken);
     }
 
-    public IActionResult OnPost()
+    public IActionResult OnPost() => OnPostAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
-            LoadEntries();
+            await LoadEntriesAsync(cancellationToken);
             return Page();
         }
 
-        rosterStore.Add(RosterEntry.Create(
-            Input.FirstName,
-            Input.LastName,
-            Input.Major,
-            Input.FavoriteKeyboardShortcut,
-            Input.ShortcutUsage));
+        try
+        {
+            await rosterStore.AddAsync(RosterEntry.Create(
+                Input.FirstName,
+                Input.LastName,
+                Input.Major,
+                Input.FavoriteKeyboardShortcut,
+                Input.ShortcutUsage), cancellationToken);
+        }
+        catch (InvalidOperationException exception)
+        {
+            ModelState.AddModelError(string.Empty, exception.Message);
+            await LoadEntriesAsync(cancellationToken);
+            return Page();
+        }
 
         Input = new RosterSubmission();
-        LoadEntries();
+        await LoadEntriesAsync(cancellationToken);
         return Page();
     }
 
-    private void LoadEntries()
+    private async Task LoadEntriesAsync(CancellationToken cancellationToken)
     {
-        Entries = rosterStore.GetSnapshot();
+        try
+        {
+            Entries = await rosterStore.GetAllAsync(cancellationToken);
+        }
+        catch (InvalidOperationException exception)
+        {
+            PersistenceUnavailable = true;
+            ModelState.AddModelError(string.Empty, exception.Message);
+            Entries = [];
+        }
     }
 }
 

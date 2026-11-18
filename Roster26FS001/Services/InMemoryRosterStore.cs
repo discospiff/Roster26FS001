@@ -17,6 +17,19 @@ public sealed class InMemoryRosterStore : IRosterStore
         }
     }
 
+    public Task AddAsync(RosterEntry entry, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Add(entry);
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<RosterEntry>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(GetSnapshot());
+    }
+
     public IReadOnlyList<RosterEntry> GetSnapshot()
     {
         lock (syncRoot)

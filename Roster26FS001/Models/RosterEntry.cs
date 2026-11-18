@@ -4,6 +4,10 @@ namespace Roster26FS001.Models;
 
 public sealed record RosterEntry
 {
+    public long Id { get; init; }
+
+    public DateTime CreatedAtUtc { get; init; }
+
     [Required]
     [StringLength(100)]
     public required string FirstName { get; init; }
@@ -33,6 +37,7 @@ public sealed record RosterEntry
     {
         return new RosterEntry
         {
+            CreatedAtUtc = DateTime.UtcNow,
             FirstName = firstName.Trim(),
             LastName = lastName.Trim(),
             Major = major.Trim(),

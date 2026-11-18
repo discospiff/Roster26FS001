@@ -4,7 +4,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<IRosterStore, InMemoryRosterStore>();
+builder.Services.AddSingleton<InMemoryRosterStore>();
+builder.Services.AddSingleton<AzureInAppConnectionStringNormalizer>();
+builder.Services.AddSingleton<RosterStoreSelector>();
+builder.Services.AddSingleton<IRosterStore>(serviceProvider =>
+{
+    var selector = serviceProvider.GetRequiredService<RosterStoreSelector>();
+    return selector.Create(
+        builder.Environment,
+        builder.Configuration["MYSQLCONNSTR_localdb"],
+        serviceProvider.GetRequiredService<InMemoryRosterStore>(),
+        serviceProvider.GetRequiredService<AzureInAppConnectionStringNormalizer>(),
+        serviceProvider.GetRequiredService<ILogger<AzureMySqlRosterStore>>());
+});
 
 var app = builder.Build();
 
